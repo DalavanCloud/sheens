@@ -1,0 +1,46 @@
+name: movingon
+nodes:
+  start:
+    branching:
+      type: message
+      branches:
+      - pattern: {"timeout":"?seconds"}
+        target: prepare
+  prepare:
+    action:
+      interpreter: ecmascript
+      source: |-
+        var t = new Date();
+        t.setSeconds(t.getSeconds() + 2);
+        _.out({"after":t});
+        return {"then":t};
+    branching:
+      branches:
+        - target: listen
+  listen:
+    branching:
+      type: message
+      moveOn:
+        after: then
+        to: movedOn
+      branches:
+      - pattern: {"get":"queso"}
+        target: done
+  done:
+    action:
+      interpreter: ecmascript
+      source: |-
+        _.out({"got":"queso"});
+        return {};
+    branching:
+      branches:
+        - target: start
+  movedOn:
+    action:
+      interpreter: ecmascript
+      source: |-
+        _.out({"movedOn":true});
+        return {};
+    branching:
+      branches:
+        - target: start

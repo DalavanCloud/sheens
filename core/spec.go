@@ -346,7 +346,7 @@ type MoveOn struct {
 	// time is greater than that time.Time, then the Branches
 	// containing this instance will call for a transition to the
 	// node named by To.  No message is consumed in this case.
-	After string `json:"moveOn"`
+	After string `json:"after"`
 
 	// To gives the name of the next node.
 	To string `json:"to"`
@@ -388,7 +388,7 @@ type Branches struct {
 
 	// MoveOn is a backup facility to help prevent a machine from
 	// stalling in the case of lost messages.
-	MoveOn *MoveOn `json:"moveOn,omitempty" yaml:",omitempty"`
+	MoveOn *MoveOn `json:"moveOn,omitempty" yaml:"moveOn,omitempty"`
 }
 
 // Copy makes a deep copy of the Branches.

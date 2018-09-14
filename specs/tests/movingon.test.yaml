@@ -1,0 +1,16 @@
+ios:
+- inputs:
+  - '{"cop":{"add":{"m":{"id":"m","spec":{"name":"movingon"}}}}}'
+  - '{"cop":{"process":{"message":{"timeout":1}}}}'
+- inputs:
+  - '{"cop":{"process":{"message":{"get":"queso"}}}}'
+  outputSet:
+  - pattern: '{"got":"queso"}'
+- waitBetween: 2s
+  inputs:
+  - '{"cop":{"process":{"message":{"timeout":1}}}}'
+  - '{"cop":{"process":{"message":{"kick":"it"}}}}'
+  outputSet:
+  - pattern: '{"movedOn":true}'
+parsePatterns: true
+defaultTimeout: 5s
