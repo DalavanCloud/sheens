@@ -41,6 +41,20 @@ func (e *UnknownNode) Error() string {
 	return `node "` + e.NodeName + `" not found in spec "` + e.Spec.Name + `"`
 }
 
+// BadMoveOnAfterBinding occurs when there is no binding or a binding
+// with a value that is not a time.Time.
+type BadMoveOnAfterBinding struct {
+	AfterVar string
+	Spec     *Spec
+	NodeName string
+	After    interface{}
+}
+
+func (e *BadMoveOnAfterBinding) Error() string {
+	// ToDo: Maybe use fmt to include e.After in the error message.
+	return `node "` + e.NodeName + `" didn't see a valid binding for "` + e.AfterVar + `" for moving on`
+}
+
 // UncompiledAction occurs when an ActionSource execution is attempted
 // but that ActionSource hasn't been Compile()ed.  Usually, this
 // compilation happens as part of Spec.Compile().

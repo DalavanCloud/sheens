@@ -340,6 +340,18 @@ func (n *Node) Terminal() bool {
 	return n.Branches == nil || 0 == len(n.Branches.Branches)
 }
 
+type MoveOn struct {
+	// After's value should name a binding, which should have a
+	// value that is a time.Time.  In that case, if the current
+	// time is greater than that time.Time, then the Branches
+	// containing this instance will call for a transition to the
+	// node named by To.  No message is consumed in this case.
+	After string `json:"moveOn"`
+
+	// To gives the name of the next node.
+	To string `json:"to"`
+}
+
 // Branches represents the possible transitions to next states.
 type Branches struct {
 	// Type is either "message", "bindings", or nil.
@@ -368,6 +380,10 @@ type Branches struct {
 	//
 	// No Branches means that this node is terminal.
 	Branches []*Branch `json:"branches,omitempty" yaml:",omitempty"`
+
+	// MoveOn is a backup facility to help prevent a machine from
+	// stalling in the case of lost messages.
+	MoveOn *MoveOn `json:"moveOn,omitempty" yaml:",omitempty"`
 }
 
 // Copy makes a deep copy of the Branches.

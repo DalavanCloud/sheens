@@ -16,6 +16,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"time"
 
 	. "github.com/Comcast/sheens/match"
 )
@@ -230,6 +231,35 @@ func (s *Spec) Step(ctx context.Context, st *State, pending interface{}, c *Cont
 	if !have {
 		// Error (with spec)
 		return nil, &UnknownNode{s, st.NodeName}
+	}
+
+	if n.Branches != nil && n.Branches.MoveOn != nil {
+		moveOn := n.Branches.MoveOn
+		after, have := st.Bs[moveOn.After]
+		if !have {
+			return nil, &BadMoveOnAfterBinding{moveOn.After, s, st.NodeName, nil}
+		}
+		t, is := after.(time.Time)
+		if !is {
+			ts, is := after.(string)
+			if !is {
+				return nil, &BadMoveOnAfterBinding{moveOn.After, s, st.NodeName, after}
+			}
+			var err error
+			t, err = time.Parse(time.RFC3339Nano, ts)
+			if err != nil {
+				return nil, &BadMoveOnAfterBinding{moveOn.After, s, st.NodeName, after}
+			}
+		}
+		if time.Now().After(t) {
+			stride := NewStride()
+			stride.From = st.Copy()
+			stride.To = st.Copy()
+			stride.To.NodeName = moveOn.To
+			stride.Consumed = nil
+			stride.Traces.Add("movedOn after " + t.Format(time.RFC3339Nano))
+			return stride, nil
+		}
 	}
 
 	if n.Action == nil && n.ActionSource != nil {

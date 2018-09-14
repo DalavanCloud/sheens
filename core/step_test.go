@@ -544,3 +544,87 @@ func TestTerminalBindingsNode(t *testing.T) {
 		t.Fatalf("stopped because %s", walked.StoppedBecause)
 	}
 }
+
+func TestStepMoveOn(t *testing.T) {
+	var (
+		duration = time.Second
+		then     = time.Now().UTC().Add(duration)
+	)
+
+	spec := &Spec{
+		Name:          "test",
+		PatternSyntax: "json",
+		Nodes: map[string]*Node{
+			"start": {
+				Branches: &Branches{
+					Type:     "message",
+					Branches: []*Branch{},
+					MoveOn: &MoveOn{
+						After: "then",
+						To:    "movedOn",
+					},
+				},
+			},
+			"movedOn": {
+				Branches: &Branches{
+					Type: "message",
+					Branches: []*Branch{
+						{
+							Target: "start",
+						},
+					},
+				},
+			},
+		},
+	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	if err := spec.Compile(ctx, nil, true); err != nil {
+		t.Fatal(err)
+	}
+
+	st := &State{
+		NodeName: "start",
+		Bs:       make(Bindings).Extend("then", then),
+	}
+
+	c := &Control{
+		Limit: 10,
+	}
+
+	msg := Dwimjs(`{"need":"queso"}`)
+
+	stride, err := spec.Step(ctx, st, msg, c, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if stride.To != nil && stride.To.NodeName != "start" {
+		t.Fatalf("shouldn't be at %s", stride.To.NodeName)
+	}
+
+	if stride.Consumed == nil {
+		t.Fatalf("should have consumed %#v", stride.Consumed)
+	}
+
+	time.Sleep(duration)
+
+	stride, err = spec.Step(ctx, st, msg, c, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if stride.To == nil {
+		t.Fatalf("should have moved on")
+	}
+
+	if stride.To.NodeName != "movedOn" {
+		t.Fatalf("shouldn't be at %s", stride.To.NodeName)
+	}
+
+	if stride.Consumed != nil {
+		t.Fatalf("shouldn't have consumed %#v", stride.Consumed)
+	}
+}
