@@ -348,16 +348,18 @@ works.  That's what the current implementations do, I think.
 This code supports an experimental branches feature that allows the
 machine to transition to another node if the current time is later
 than the time given by a specified binding.  Branches can include an
-optional `moveOn` structure, which has two properties: `after` and
-`to`. The value of `after` should be a binding that has a Go
-`time.Time` value or an RFC3339 string representing a time, and the
-`to` value should name a node.  If the machine is asked to advance
-from the node with `moveOn` and if the current time is after the
-`after` time, then the machine will transition to the node named by
-`to`.  In this case, no branche are actually cosidered, and any
-pending message is not consumed.  Note that this "move on" facility
-doesn't work autonomously.  You have to kick the machine to get it to
-move on, so this facility is more of a fallback (say for the
+optional `moveOn` structure, which has two required properties:
+`after` and `to`. A `removeBinding` Boolean property is optional.  The
+value of `after` should be a binding that has a Go `time.Time` value
+or an RFC3339 string representing a time, and the `to` value should
+name a node.  If the machine is asked to advance from the node with
+`moveOn` and if the current time is after the `after` time, then the
+machine will transition to the node named by `to`.  In this case, no
+branches are actually cosidered, and any pending message is not
+consumed.  If `removeBinding` is set, then the binding given by
+`after` is removed from the set of bindings.  Note that this "move on"
+facility doesn't work autonomously.  You have to kick the machine to
+get it to move on, so this facility is more of a fallback (say for the
 situations when messages are lost).  Note also that there are other
 ways to deal with similar contingencies.
 

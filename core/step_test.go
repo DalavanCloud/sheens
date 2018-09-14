@@ -560,8 +560,9 @@ func TestStepMoveOn(t *testing.T) {
 					Type:     "message",
 					Branches: []*Branch{},
 					MoveOn: &MoveOn{
-						After: "then",
-						To:    "movedOn",
+						After:         "then",
+						To:            "movedOn",
+						RemoveBinding: true,
 					},
 				},
 			},
@@ -626,5 +627,9 @@ func TestStepMoveOn(t *testing.T) {
 
 	if stride.Consumed != nil {
 		t.Fatalf("shouldn't have consumed %#v", stride.Consumed)
+	}
+
+	if _, have := stride.To.Bs["then"]; have {
+		t.Fatalf("should have removed binding for 'then'")
 	}
 }

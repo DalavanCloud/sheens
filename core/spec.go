@@ -350,6 +350,11 @@ type MoveOn struct {
 
 	// To gives the name of the next node.
 	To string `json:"to"`
+
+	// RemoveBinding will result in the binding given by 'After'
+	// being removed from the current set of bindings if the
+	// current time is after the specified time.
+	RemoveBinding bool `json:"removeBinding"`
 }
 
 // Branches represents the possible transitions to next states.

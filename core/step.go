@@ -255,6 +255,9 @@ func (s *Spec) Step(ctx context.Context, st *State, pending interface{}, c *Cont
 			stride := NewStride()
 			stride.From = st.Copy()
 			stride.To = st.Copy()
+			if moveOn.RemoveBinding {
+				stride.To.Bs = stride.To.Bs.Remove(moveOn.After)
+			}
 			stride.To.NodeName = moveOn.To
 			stride.Consumed = nil
 			stride.Traces.Add("movedOn after " + t.Format(time.RFC3339Nano))
